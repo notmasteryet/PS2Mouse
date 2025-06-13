@@ -15,21 +15,24 @@ void setup(){
   while(!Serial);
   Serial.print("Setup...");
 
-  mouse.begin();
+  mouse.begin(true);
   Serial.println("complete!");
 }
 
 void loop(){
   uint8_t stat;
-  int x,y;
-  mouse.getPosition(stat,x,y);
-  
+  int x,y,z;
+  //mouse.getPosition(stat,x,y);
+   mouse.getAbsPosition(stat,x,y,z);
+   
   Serial.print(stat, BIN);
   Serial.print("\tx=");
   Serial.print(x, DEC);
   Serial.print("\ty=");
-  Serial.println(y, DEC);
+  Serial.print(y, DEC);
+  Serial.print("\tz=");
+  Serial.println(z, DEC);
   
-  delay(1000);  
+  delay(200);  
 }
 

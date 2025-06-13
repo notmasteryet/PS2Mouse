@@ -8,9 +8,11 @@ class PS2Mouse {
     PS2Mouse(int data, int clk);
     void write(uint8_t data);
     uint8_t read(void);
+    void writeAndRead(uint8_t data);
 
-    void begin(void);
+    void begin(bool absolute);
     void getPosition(uint8_t &stat, int &x, int &y);
+    void getAbsPosition(uint8_t &stat, int &x, int &y, int& z);
 
   private:
     int _ps2clk;

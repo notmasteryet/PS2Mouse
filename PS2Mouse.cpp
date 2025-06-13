@@ -73,17 +73,26 @@ uint8_t PS2Mouse::read(void){
   return data;
 }
 
-void PS2Mouse::begin(void){
+void PS2Mouse::writeAndRead(uint8_t data) {
+  write(data);
+  read();//Serial.println(read());
+}
+
+void PS2Mouse::begin(bool absolute){
   write(0xFF);
   for(int i=0; i<3; i++) read();
-  write(0xF0);
-  read();
+  writeAndRead(0xF0);
+  if (absolute) {
+    const uint8_t init[] = {
+      0xE8, 0x03, 0xE8, 0x00, 0xE8, 0x00, 0xE8, 0x00, 0xF3, 0x14};
+    for (int i=0;i<10; i++)
+      writeAndRead(init[i]);
+  }
   delayMicroseconds(100);
 }
 
 void PS2Mouse::getPosition(uint8_t &stat, int &x, int &y){
-  write(0xEB);
-  read();
+  writeAndRead(0xEB);
   stat=read();
   uint8_t _x=read();
   uint8_t _y=read();  
@@ -92,6 +101,19 @@ void PS2Mouse::getPosition(uint8_t &stat, int &x, int &y){
   bool negy=bitRead(stat,5);
   x=twos(_x, negx);
   y=twos(_y, negy);
+}
+
+void PS2Mouse::getAbsPosition(uint8_t &stat, int &x, int &y, int& z) {
+  writeAndRead(0xEB);
+  stat=read() & 0b111111;
+  uint16_t _xy1=read();
+  z = read();  
+  uint16_t _xy2=read();
+  uint8_t _x=read();
+  uint8_t _y=read();
+
+  x=_x | ((_xy1 << 8) & 0xf00) | ((_xy2 << 8) & 0x1000);
+  y=_y | ((_xy1 << 4) & 0xf00) | ((_xy2 << 7) & 0x1000);
 }
 
 void PS2Mouse::golo(int pin){
